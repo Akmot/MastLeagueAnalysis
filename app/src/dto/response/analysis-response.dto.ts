@@ -1,9 +1,9 @@
-import { Body } from './body.dto';
-import { Header } from './header.dto';
+import { ResponseBody } from './ResponseBody.dto';
+import { ResponseHeader } from './ResponseHeader.dto';
 /** レスポンス情報. */
 export class AnalysisResponse {
   /** ヘッダ部. */
-  header: Header;
+  header: ResponseHeader;
   /** ボディ部. */
-  body: Body;
+  body: ResponseBody;
 }

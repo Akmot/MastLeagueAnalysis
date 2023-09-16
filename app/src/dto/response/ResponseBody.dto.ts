@@ -1,7 +1,7 @@
 /** 対局者情報. */
 export class Player {
   /** アカウントID. */
-  accountId: string;
+  accountId: number;
   /** アカウント名. */
   accountName: string;
 }
@@ -9,7 +9,7 @@ export class Player {
 /** 対局結果. */
 export class MatchResult {
   /** アカウントID. */
-  accountId: string;
+  accountId: number;
   /** 対局順位. */
   matchRank: number;
   /** 素点. */
@@ -21,7 +21,7 @@ export class MatchResult {
 /** 対局者詳細. */
 export class PlayerMatchDetail {
   /** アカウントID. */
-  accountId: string;
+  accountId: number;
   /** 立直回数. */
   liqiCount: number;
   /** 和了回数. */
@@ -45,7 +45,7 @@ export class MatchDetail {
 }
 
 /** ボディ部. */
-export class Body {
+export class ResponseBody {
   /** 対局者リスト. */
   playerList: Player[];
   /** 対局結果リスト. */
