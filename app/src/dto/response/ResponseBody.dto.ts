@@ -10,6 +10,8 @@ export class Player {
 export class MatchResult {
   /** アカウントID. */
   accountId: number;
+  /** 席番号. */
+  seat: number;
   /** 対局順位. */
   matchRank: number;
   /** 素点. */

@@ -1,9 +1,8 @@
-// ウマ
-export const BONUS_POINT_TOP = 30;
+// 順位点
+export const BONUS_POINT_TOP = 50;
 export const BONUS_POINT_SECOND = 10;
-
-export const BONUS_POINT_THRID = -BONUS_POINT_SECOND;
-export const BONUS_POINT_RAS = -BONUS_POINT_TOP;
+export const BONUS_POINT_THIRD = -BONUS_POINT_SECOND;
+export const BONUS_POINT_RAS = -30;
 
 // 順位表
 export const RANK_MAPPING = {
@@ -17,7 +16,7 @@ export const RANK_MAPPING = {
 export const RANK_BONUS_MAPPING = {
   top: BONUS_POINT_TOP,
   second: BONUS_POINT_SECOND,
-  third: BONUS_POINT_THRID,
+  third: BONUS_POINT_THIRD,
   ras: BONUS_POINT_RAS,
 };
 

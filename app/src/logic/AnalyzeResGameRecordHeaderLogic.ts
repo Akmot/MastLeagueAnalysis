@@ -7,12 +7,13 @@ import {
 } from 'src/dto/response/ResponseBody.dto';
 import { ResponseHeader } from 'src/dto/response/ResponseHeader.dto';
 import {
-  calculateResultPont,
+  calculateResultPoint,
   convertUnixTimeToDate,
 } from './AnalyzeCommonLogic';
 import PlayerItem from 'src/dto/gamedata/PlayerItem.dto';
 import GameDetailRule from 'src/dto/gamedata/GameDetailRule.dto';
 import { DEFAULT_PLUS_POINT } from 'src/const/AnalyzeConst';
+import MatchRankPoint from 'src/dto/logic/MatchRank.dto';
 
 /**
  * レスポンスヘッダ作成
@@ -101,40 +102,77 @@ const createMatchResultList = (
   gameDetailRule: GameDetailRule,
 ): MatchResult[] => {
   // 得点のリストを取得
-  const matchPointRankList = playerMatchData.map((playerItem: PlayerItem) => {
-    return playerItem.part_point_1;
-  });
-  // 降順にソート
-  matchPointRankList.sort((a: number, b: number) => b - a);
+  const matchPointRankList: MatchRankPoint[] = playerMatchData.map(
+    (playerItem: PlayerItem) => {
+      return {
+        point: playerItem.part_point_1,
+        seat: playerItem.seat,
+        rank: 0,
+      };
+    },
+  );
+  // 点数の降順にソート
+  matchPointRankList.sort((a, b) => b.point - a.point);
 
-  return accountInfoList.map((accountInfo: AccountInfo) => {
-    const matchResult: MatchResult = {
-      accountId: accountInfo.account_id,
-      matchRank: 0,
-      matchPoint: 0,
-      resultPoint: 0,
+  const matchResultList: MatchResult[] = accountInfoList.map(
+    (accountInfo: AccountInfo) => {
+      const matchResult: MatchResult = {
+        accountId: accountInfo.account_id,
+        matchRank: 0,
+        matchPoint: 0,
+        resultPoint: 0,
+        seat: 0,
+      };
+
+      // 席番号から対象アカウントの対局結果を取得
+      const matchData = playerMatchData.find(
+        (playerItem: PlayerItem) => playerItem.seat == accountInfo.seat,
+      );
+
+      // 順位を取得(同立の場合、上位の順位が取得される)
+      const matchRank =
+        matchPointRankList.findIndex(
+          (matchPointRank: MatchRankPoint) =>
+            matchPointRank.point === matchData.part_point_1,
+        ) + 1;
+      // 得点順位リストの順位を更新
+      matchPointRankList.find(
+        (matchRankPoint) => matchRankPoint.seat === accountInfo.seat,
+      ).rank = matchRank;
+
+      // 素点を計算
+      const matchPoint = matchData.part_point_1 - DEFAULT_PLUS_POINT;
+
+      // 対局結果を格納
+      matchResult.matchRank = matchRank;
+      matchResult.matchPoint = matchPoint;
+      matchResult.seat = accountInfo.seat;
+      matchResult.resultPoint = calculateResultPoint(
+        matchPoint,
+        matchRank,
+        gameDetailRule,
+        accountInfo.seat,
+        matchPointRankList,
+      );
+
+      return matchResult;
+    },
+  );
+
+  // 得点を算出し返却(順位計算の前後関係の都合上)
+  return matchResultList.map((matchResult) => {
+    return {
+      accountId: matchResult.accountId,
+      matchRank: matchResult.matchRank,
+      matchPoint: matchResult.matchPoint,
+      seat: matchResult.seat,
+      resultPoint: calculateResultPoint(
+        matchResult.matchPoint,
+        matchResult.matchRank,
+        gameDetailRule,
+        matchResult.seat,
+        matchPointRankList,
+      ),
     };
-
-    // 席番号から対象アカウントの対局結果を取得
-    const matchData = playerMatchData.find(
-      (playerItem: PlayerItem) => playerItem.seat == accountInfo.seat,
-    );
-
-    // 順位を取得
-    const matchRank = matchPointRankList.indexOf(matchData.part_point_1) + 1;
-
-    // 素点を計算
-    const matchPoint = matchData.part_point_1 - DEFAULT_PLUS_POINT;
-
-    // 対局結果を格納
-    matchResult.matchRank = matchRank;
-    matchResult.matchPoint = matchPoint;
-    matchResult.resultPoint = calculateResultPont(
-      matchPoint,
-      matchRank,
-      gameDetailRule,
-    );
-
-    return matchResult;
   });
 };
